@@ -8,6 +8,6 @@ public class DiceView : MonoBehaviour
 
     public void OnValueChanged()
     {
-        Debug.Log("DiceView: °ª ¾÷µ¥ÀÌÆ®µÊ ¡æ " + model.Value);
+        Debug.Log("ê°’: " + model.Value);
     }
 }

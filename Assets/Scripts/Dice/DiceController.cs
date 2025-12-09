@@ -9,17 +9,17 @@ public class DiceController : MonoBehaviour
     [SerializeField] private Transform[] faces;
     [SerializeField] private Rigidbody rb;
 
+    public GameManager gameManager;
+    public int diceIndex;
+
     private bool isRolling = false;
     private float rollStartTime;
     private float blockDuration = 0.25f;
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-            Roll();
-
-        if (!isRolling) return;
-
+        if (!isRolling)
+            return;
         if (Time.time - rollStartTime < blockDuration)
             return;
 
@@ -30,8 +30,7 @@ public class DiceController : MonoBehaviour
             int topValue = GetTopFace();
             model.SetValue(topValue);
             view.OnValueChanged();
-
-            Debug.Log("주사위 결과 = " + topValue);
+            gameManager.DiceStop();
         }
     }
 
@@ -42,12 +41,7 @@ public class DiceController : MonoBehaviour
 
         transform.position += Vector3.up * 0.3f;
 
-        rb.AddForce(new Vector3(
-            Random.Range(-2f, 2f),
-            Random.Range(4f, 7f),
-            Random.Range(-2f, 2f)
-        ), ForceMode.Impulse);
-
+        rb.AddForce(new Vector3(Random.Range(-2f, 2f), Random.Range(4f, 7f), Random.Range(-2f, 2f)), ForceMode.Impulse);
         rb.AddTorque(Random.insideUnitSphere * 10f, ForceMode.Impulse);
     }
 
