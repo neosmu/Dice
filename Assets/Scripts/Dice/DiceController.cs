@@ -30,7 +30,8 @@ public class DiceController : MonoBehaviour
             int topValue = GetTopFace();
             model.SetValue(topValue);
             view.OnValueChanged();
-            gameManager.DiceStop();
+
+            gameManager.DiceStop(diceIndex, topValue);
         }
     }
 

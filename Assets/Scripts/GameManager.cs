@@ -5,21 +5,19 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private DiceController[] dices;
+    [SerializeField] private DiceSpawner diceSpawner;
+    [SerializeField] private DiceController[] dices = new DiceController[5];
     [SerializeField] private GameObject holdPanel;
     [SerializeField] private DiceSlot[] diceUISlots;
     [SerializeField] private Button okButton;
 
     private int stoppedDiceCount = 0;
 
+    private bool[] holdStates = new bool[5];  
+    private int[] diceValues = new int[5];     
+
     private void Start()
     {
-        for (int i = 0; i < dices.Length; i++)
-        {
-            dices[i].gameManager = this;
-            dices[i].diceIndex = i;
-        }
-
         okButton.onClick.AddListener(ConfirmHoldSelection);
         holdPanel.SetActive(false);
     }
@@ -29,27 +27,41 @@ public class GameManager : MonoBehaviour
         holdPanel.SetActive(false);
         stoppedDiceCount = 0;
 
-        for (int i = 0; i < dices.Length; i++)
-        {
-            DiceModel model = dices[i].GetComponent<DiceModel>();
+        SpawnAndRoll();
+    }
 
-            if (model.IsHold)
+    private void SpawnAndRoll()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            bool hold = holdStates[i];
+            if (hold)
             {
-                DiceStop();
+                dices[i] = null;
+                DiceStop(i, diceValues[i]);  
+                continue;
             }
-            else
-            {
-                dices[i].Roll();
-                model.AddRollCount();
-            }
+
+            DiceController dice = diceSpawner.SpawnDice(i);
+            dice.gameManager = this;
+            dice.diceIndex = i;
+
+            dices[i] = dice;
+
+            DiceModel model = dice.GetComponent<DiceModel>();
+            model.SetHold(false);
+
+            dice.Roll();
+            model.AddRollCount();
         }
     }
 
-    public void DiceStop()
+    public void DiceStop(int index, int value)
     {
+        diceValues[index] = value;
         stoppedDiceCount++;
 
-        if (stoppedDiceCount == dices.Length)
+        if (stoppedDiceCount == 5)
         {
             OpenHoldPanel();
         }
@@ -58,25 +70,34 @@ public class GameManager : MonoBehaviour
     private void OpenHoldPanel()
     {
         holdPanel.SetActive(true);
-
-        for (int i = 0; i < dices.Length; i++)
+        for (int i = 0; i < 5; i++)
         {
-            DiceModel model = dices[i].GetComponent<DiceModel>();
+            diceUISlots[i].SetFace(diceValues[i]);
+            diceUISlots[i].SetHold(holdStates[i]);
+        }
 
-            diceUISlots[i].SetFace(model.Value);
-            diceUISlots[i].SetHold(model.IsHold);
+        CollectAll();
+    }
+
+    private void CollectAll()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            if (dices[i] != null)
+            {
+                diceSpawner.Collect(dices[i]);
+                dices[i] = null;
+            }
         }
     }
 
     public void ConfirmHoldSelection()
     {
-        for (int i = 0; i < dices.Length; i++)
+        for (int i = 0; i < 5; i++)
         {
-            bool hold = diceUISlots[i].IsHoldSelected();
-            dices[i].GetComponent<DiceModel>().SetHold(hold);
+            holdStates[i] = diceUISlots[i].IsHoldSelected();
         }
 
         holdPanel.SetActive(false);
     }
-
 }
