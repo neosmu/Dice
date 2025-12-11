@@ -14,8 +14,9 @@ public class GameManager : MonoBehaviour
     private int stoppedDiceCount = 0;
 
     private bool[] holdStates = new bool[5];  
-    private int[] diceValues = new int[5];     
-
+    private int[] diceValues = new int[5];
+    private int rollCount = 0;
+    private const int maxRoll = 3;
     private void Start()
     {
         okButton.onClick.AddListener(ConfirmHoldSelection);
@@ -24,6 +25,14 @@ public class GameManager : MonoBehaviour
 
     public void RollAll()
     {
+        if (rollCount >= maxRoll)
+        {
+            Debug.Log("더 이상 굴릴 수 없습니다.");
+            return;
+        }
+
+        rollCount++;
+
         holdPanel.SetActive(false);
         stoppedDiceCount = 0;
 
@@ -38,7 +47,7 @@ public class GameManager : MonoBehaviour
             if (hold)
             {
                 dices[i] = null;
-                DiceStop(i, diceValues[i]);  
+                DiceStop(i, diceValues[i]);
                 continue;
             }
 
