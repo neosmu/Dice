@@ -10,9 +10,9 @@ public class DiceController : MonoBehaviour
     [SerializeField] private Rigidbody rb;
 
     public GameManager gameManager;
-    public int diceIndex;
+    public int diceIndex; // 몇 번째 주사위인지 구분용 인덱스
 
-    private bool isRolling = false;
+    private bool isRolling = false; // 현재 굴러가는 중인지 여부
     private float rollStartTime;
     private float blockDuration = 0.25f;
 
@@ -46,6 +46,7 @@ public class DiceController : MonoBehaviour
         rb.AddTorque(Random.insideUnitSphere * 10f, ForceMode.Impulse);
     }
 
+    // 가장 위를 향하고 있는 면을 찾아 해당 FaceId 값을 반환
     private int GetTopFace()
     {
         float maxDot = -1f;
@@ -60,7 +61,6 @@ public class DiceController : MonoBehaviour
                 result = face.GetComponent<FaceId>().value;
             }
         }
-
         return result;
     }
 }

@@ -16,6 +16,7 @@ public class DiceSlot : MonoBehaviour
         holdButton.onClick.AddListener(Hold);
     }
 
+    // 주사위 값에 따른 이미지 변경
     public void SetFace(int value)
     {
         faceImage.sprite = faceSprites[value - 1];

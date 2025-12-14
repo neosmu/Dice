@@ -9,6 +9,7 @@ public class ScoreBoard : MonoBehaviour
     private bool hasSelected = false;
     private ScoreSlot selectedSlot;
 
+    // 현재 주사위 기준으로 점수판 갱신
     public void UpdateScoreBoard(int[] dice)
     {
         hasSelected = false;
@@ -40,10 +41,11 @@ public class ScoreBoard : MonoBehaviour
         }
     }
 
+    // 점수 선택 처리
     private void OnSelect(ScoreSlot slot, bool isOn)
     {
         if (isOn == false)
-            return;
+            return; 
 
         if (hasSelected == true)
             return;

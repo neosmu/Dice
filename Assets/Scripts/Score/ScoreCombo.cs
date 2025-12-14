@@ -22,6 +22,7 @@ public class ScoreCombo : MonoBehaviour
     {
         List<DiceScore> results = new List<DiceScore>();
 
+        // 기본 점수 항목
         results.Add(DiceScore.Ones);
         results.Add(DiceScore.Twos);
         results.Add(DiceScore.Threes);
@@ -43,7 +44,7 @@ public class ScoreCombo : MonoBehaviour
         return results;
     }
 
-
+    // 점수 계산
     public static int CalculateScore(DiceScore type, int[] dice)
     {
         switch (type)

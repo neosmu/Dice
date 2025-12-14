@@ -11,6 +11,7 @@ public class DiceModel : MonoBehaviour
     public bool IsHold { get; private set; }
     public int RollCount { get; private set; }
 
+    // 값 변경 / 홀드 변경 이벤트
     public event Action OnValueChanged;
     public event Action OnHoldChanged;
 
