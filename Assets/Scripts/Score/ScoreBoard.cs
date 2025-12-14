@@ -16,42 +16,52 @@ public class ScoreBoard : MonoBehaviour
 
         var possible = ScoreCombo.GetPossibleScores(dice);
 
-        foreach (var row in slots)
+        foreach (var slot in slots)
         {
-            row.toggle.isOn = false;
-            row.toggle.interactable = false;
+            if (slot.IsLocked())
+                continue;
 
-            if (possible.Contains(row.scoreType))
+            slot.toggle.isOn = false;
+            slot.toggle.interactable = false;
+
+            if (possible.Contains(slot.scoreType))
             {
-                int score = ScoreCombo.CalculateScore(row.scoreType, dice);
-                row.SetScore(score);
+                int score = ScoreCombo.CalculateScore(slot.scoreType, dice);
+                slot.SetScore(score);
+                slot.toggle.interactable = true;
             }
             else
             {
-                row.SetScore(0);
+                slot.SetScore(0);
             }
 
-            row.toggle.onValueChanged.RemoveAllListeners();
-            row.toggle.onValueChanged.AddListener(
-                (isOn) => OnSelect(row, isOn)
-            );
+            slot.toggle.onValueChanged.RemoveAllListeners();
+            slot.toggle.onValueChanged.AddListener((isOn) => OnSelect(slot, isOn));
         }
     }
 
     private void OnSelect(ScoreSlot slot, bool isOn)
     {
-        if (!isOn || hasSelected) return;
+        if (isOn == false)
+            return;
+
+        if (hasSelected == true)
+            return;
 
         hasSelected = true;
         selectedSlot = slot;
 
-        foreach (var r in slots)
+        slot.Lock();
+
+        foreach (var s in slots)
         {
-            r.Lock();
+            if (s != slot && s.IsLocked() == false)
+                s.toggle.interactable = false;
         }
 
         Debug.Log($"선택됨: {slot.scoreType}, 점수: {slot.GetScore()}");
     }
+
     public void Close()
     {
         gameObject.SetActive(false);

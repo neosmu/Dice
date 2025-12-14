@@ -25,7 +25,13 @@ public class ScoreSlot : MonoBehaviour
     public void Lock()
     {
         isLocked = true;
+        toggle.isOn = true;
         toggle.interactable = false;
+    }
+
+    public bool IsLocked()
+    {
+        return isLocked;
     }
 
     public int GetScore()

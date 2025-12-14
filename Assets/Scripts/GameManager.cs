@@ -143,5 +143,15 @@ public class GameManager : MonoBehaviour
     private void CloseScoreBoard()
     {
         scoreBoard.Close();
+        ResetTurn();
+    }
+    private void ResetTurn()
+    {
+        rollCount = 0;
+
+        for (int i = 0; i < 5; i++)
+        {
+            holdStates[i] = false;
+        }
     }
 }
