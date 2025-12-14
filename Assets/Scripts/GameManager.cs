@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,20 +8,35 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private DiceSpawner diceSpawner;
     [SerializeField] private DiceController[] dices = new DiceController[5];
+
     [SerializeField] private GameObject holdPanel;
     [SerializeField] private DiceSlot[] diceUISlots;
+
+    [Header("Hold Panel Buttons")]
+    [SerializeField] private Button closeButton;
     [SerializeField] private Button okButton;
+
+    [Header("ScoreBoard")]
+    [SerializeField] private ScoreBoard scoreBoard;
+    [SerializeField] private Button scoreBoardCloseButton;
 
     private int stoppedDiceCount = 0;
 
-    private bool[] holdStates = new bool[5];  
+    private bool[] holdStates = new bool[5];
     private int[] diceValues = new int[5];
+
     private int rollCount = 0;
     private const int maxRoll = 3;
+
     private void Start()
     {
-        okButton.onClick.AddListener(ConfirmHoldSelection);
+        closeButton.onClick.AddListener(CloseHoldPanel);
+        okButton.onClick.AddListener(OpenScoreBoard);
+
+        scoreBoardCloseButton.onClick.AddListener(CloseScoreBoard);
+
         holdPanel.SetActive(false);
+        scoreBoard.gameObject.SetActive(false);
     }
 
     public void RollAll()
@@ -43,8 +59,7 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < 5; i++)
         {
-            bool hold = holdStates[i];
-            if (hold)
+            if (holdStates[i])
             {
                 dices[i] = null;
                 DiceStop(i, diceValues[i]);
@@ -79,11 +94,13 @@ public class GameManager : MonoBehaviour
     private void OpenHoldPanel()
     {
         holdPanel.SetActive(true);
+
         for (int i = 0; i < 5; i++)
         {
             diceUISlots[i].SetFace(diceValues[i]);
             diceUISlots[i].SetHold(holdStates[i]);
         }
+
         ScoreCombo.Print(diceValues);
         CollectAll();
     }
@@ -100,13 +117,31 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void ConfirmHoldSelection()
+    private void ApplyHoldSelectionFromUI()
     {
         for (int i = 0; i < 5; i++)
         {
             holdStates[i] = diceUISlots[i].IsHoldSelected();
         }
+    }
 
+    private void CloseHoldPanel()
+    {
+        ApplyHoldSelectionFromUI();
         holdPanel.SetActive(false);
+    }
+
+    private void OpenScoreBoard()
+    {
+        ApplyHoldSelectionFromUI();
+        holdPanel.SetActive(false);
+
+        scoreBoard.gameObject.SetActive(true);
+        scoreBoard.UpdateScoreBoard(diceValues);
+    }
+
+    private void CloseScoreBoard()
+    {
+        scoreBoard.Close();
     }
 }
