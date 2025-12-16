@@ -8,6 +8,10 @@ public class DiceAutoAI : MonoBehaviour
 
     private const int MAX_ROLL = 3;
 
+    public void TestAI()
+    {
+        StartCoroutine(AIPlayOnce());
+    }
     private IEnumerator AIPlayOnce()
     {
         for (int roll = 0; roll < MAX_ROLL; roll++)
