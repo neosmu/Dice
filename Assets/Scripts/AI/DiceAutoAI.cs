@@ -18,20 +18,18 @@ public class DiceAutoAI : MonoBehaviour
         {
             Debug.Log($"[AI] Roll {roll + 1}");
 
-            // 현재 주사위 값 확인
-            int[] dice = gameManager.GetCurrentDiceValues();
-
-            // Hold 판단
-            DecideHold(dice);
-
             // Roll 실행
             gameManager.RollDice();
 
-            // 모든 주사위가 멈출 때까지 대기
+            // 주사위 정지 대기
             yield return new WaitUntil(() => gameManager.IsAllDiceStopped());
 
-            int[] result = gameManager.GetCurrentDiceValues();
-            Debug.Log("[AI] Dice Result : " + string.Join(", ", result));
+            // 값 결과
+            int[] dice = gameManager.GetCurrentDiceValues();
+            Debug.Log("[AI] Dice Result : " + string.Join(", ", dice));
+
+            // Hold 판단
+            DecideHold(dice);
         }
     }
 
