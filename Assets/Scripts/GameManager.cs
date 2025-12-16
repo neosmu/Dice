@@ -154,4 +154,31 @@ public class GameManager : MonoBehaviour
             holdStates[i] = false;
         }
     }
+    public int[] GetCurrentDiceValues()
+    {
+        return diceValues;
+    }
+
+    // AI가 Roll 실행
+    public void RollDice()
+    {
+        RollAll();
+    }
+
+    public bool IsAllDiceStopped()
+    {
+        return stoppedDiceCount == 5;
+    }
+
+    // 특정 숫자 주사위 Hold
+    public void HoldValue(int value)
+    {
+        for (int i = 0; i < diceValues.Length; i++)
+        {
+            if (diceValues[i] == value)
+            {
+                holdStates[i] = true;
+            }
+        }
+    }
 }
