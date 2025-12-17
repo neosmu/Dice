@@ -24,7 +24,7 @@ public class DiceAutoAI : MonoBehaviour
         { DiceScore.Fours, 4 },
         { DiceScore.Threes, 3 },
         { DiceScore.Twos, 2 },
-        { DiceScore.Ones, 1 },
+        { DiceScore.Aces, 1 },
     };
 
     public void TestAI()
@@ -49,28 +49,13 @@ public class DiceAutoAI : MonoBehaviour
 
         // Roll 종료 후 점수 선택
         int[] finalDice = gameManager.GetCurrentDiceValues();
-        DiceScore bestScore = DecideBestScore(finalDice);
+        DiceScore bestScore = BestScore(finalDice);
 
         Debug.Log($"[AI] 선택 점수: {bestScore}");
 
         // 점수판 갱신 후 자동 선택
         scoreBoard.UpdateScoreBoard(finalDice);
         AutoSelectScore(bestScore);
-    }
-
-    // Hold 판단 
-    private void DecideHold(int[] dice)
-    {
-        Dictionary<int, int> counts = CountDice(dice);
-
-        foreach (var pair in counts)
-        {
-            if (pair.Value >= 2)
-            {
-                gameManager.HoldValue(pair.Key);
-                Debug.Log($"Hold : {pair.Key}");
-            }
-        }
     }
 
     private Dictionary<int, int> CountDice(int[] dice)
@@ -87,30 +72,102 @@ public class DiceAutoAI : MonoBehaviour
         return dict;
     }
 
+    // Hold 판단 
+    private void DecideHold(int[] dice)
+    {
+        List<int> uniq = new List<int>();
+        for (int i = 0; i < dice.Length; i++)
+        {
+            if (uniq.Contains(dice[i]) == false)
+                uniq.Add(dice[i]);
+        }
+        uniq.Sort();
+        int bestLen = 1;
+        int bestStart = 0;
+
+        int curLen = 1;
+        int curStart = 0;
+
+        for (int i = 1; i < uniq.Count; i++)
+        {
+            if (uniq[i] == uniq[i - 1] + 1)
+            {
+                curLen++;
+            }
+            else
+            {
+                if (curLen > bestLen)
+                {
+                    bestLen = curLen;
+                    bestStart = curStart;
+                }
+                curStart = i;
+                curLen = 1;
+            }
+        }
+
+        if (curLen > bestLen)
+        {
+            bestLen = curLen;
+            bestStart = curStart;
+        }
+
+        // 스트레이트 가능성 있으면 우선 홀드
+        if (bestLen >= 3)
+        {
+            for (int i = bestStart; i < bestStart + bestLen; i++)
+            {
+                gameManager.HoldValue(uniq[i]);
+            }
+            return;
+        }
+        Dictionary<int, int> counts = CountDice(dice);
+        foreach (var pair in counts)
+        {
+            if (pair.Value >= 2)
+            {
+                gameManager.HoldValue(pair.Key);
+            }
+        }
+    }
+
     // 가중치 기반 점수 판단
-    private DiceScore DecideBestScore(int[] dice)
+    private DiceScore BestScore(int[] dice)
     {
         List<DiceScore> possible = ScoreCombo.GetPossibleScores(dice);
 
         DiceScore best = possible[0];
-        int bestValue = -1;
+        int bestValue = int.MinValue;
 
         foreach (DiceScore type in possible)
         {
+            if (IsScoreLocked(type))
+                continue;
+
             int score = ScoreCombo.CalculateScore(type, dice);
-            int weight = scoreWeights.ContainsKey(type) ? scoreWeights[type] : 0;
+            if (score <= 0)
+                continue;
 
-            int total = score + weight;
+            int weight = 0;
+            if (scoreWeights.ContainsKey(type))
+                weight = scoreWeights[type];
 
-            Debug.Log($"[AI] {type} → 점수:{score}, 가중치:{weight}, 합:{total}");
+            int finalValue = score + weight;
 
-            if (total > bestValue)
+            if (type == DiceScore.FourOfKind || type == DiceScore.FullHouse || type == DiceScore.Choice)
             {
-                bestValue = total;
+                float ratio = (float)score / 20f; 
+                ratio = Mathf.Clamp01(ratio);
+
+                finalValue = (int)(weight * ratio) + score;
+            }
+
+            if (finalValue > bestValue)
+            {
+                bestValue = finalValue;
                 best = type;
             }
         }
-
         return best;
     }
 
@@ -125,5 +182,14 @@ public class DiceAutoAI : MonoBehaviour
                 break;
             }
         }
+    }
+    private bool IsScoreLocked(DiceScore type)
+    {
+        foreach (var slot in scoreBoard.slots)
+        {
+            if (slot.scoreType == type)
+                return slot.IsLocked();
+        }
+        return true;
     }
 }

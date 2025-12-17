@@ -23,7 +23,7 @@ public class ScoreCombo : MonoBehaviour
         List<DiceScore> results = new List<DiceScore>();
 
         // 기본 점수 항목
-        results.Add(DiceScore.Ones);
+        results.Add(DiceScore.Aces);
         results.Add(DiceScore.Twos);
         results.Add(DiceScore.Threes);
         results.Add(DiceScore.Fours);
@@ -49,7 +49,7 @@ public class ScoreCombo : MonoBehaviour
     {
         switch (type)
         {
-            case DiceScore.Ones: return SumOf(dice, 1);
+            case DiceScore.Aces: return SumOf(dice, 1);
             case DiceScore.Twos: return SumOf(dice, 2);
             case DiceScore.Threes: return SumOf(dice, 3);
             case DiceScore.Fours: return SumOf(dice, 4);
