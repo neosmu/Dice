@@ -27,7 +27,7 @@ public class DiceAutoAI : MonoBehaviour
         { DiceScore.Aces, 1 },
     };
 
-    public void TestAI()
+    public void PlayAITurn()
     {
         StartCoroutine(AIPlayOnce());
     }
@@ -42,8 +42,6 @@ public class DiceAutoAI : MonoBehaviour
             yield return new WaitUntil(() => gameManager.IsAllDiceStopped());
 
             int[] dice = gameManager.GetCurrentDiceValues();
-            Debug.Log("[AI] Dice Result : " + string.Join(", ", dice));
-
             DecideHold(dice);
         }
 

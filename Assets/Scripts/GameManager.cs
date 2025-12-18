@@ -11,14 +11,15 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject holdPanel;
     [SerializeField] private DiceSlot[] diceUISlots;
-
-    [Header("Hold Panel Buttons")]
     [SerializeField] private Button closeButton;
     [SerializeField] private Button okButton;
 
-    [Header("ScoreBoard")]
+    [Header("점수판")]
     [SerializeField] private ScoreBoard scoreBoard;
     [SerializeField] private Button scoreBoardCloseButton;
+
+    [SerializeField] private TurnManager turnManager;
+    [SerializeField] private DiceAutoAI diceAutoAI;
 
     private int stoppedDiceCount = 0;
 
@@ -32,11 +33,14 @@ public class GameManager : MonoBehaviour
     {
         closeButton.onClick.AddListener(CloseHoldPanel);
         okButton.onClick.AddListener(OpenScoreBoard);
-
         scoreBoardCloseButton.onClick.AddListener(CloseScoreBoard);
+
+        turnManager.OnTurnStarted += OnTurnStarted;
 
         holdPanel.SetActive(false);
         scoreBoard.gameObject.SetActive(false);
+
+        turnManager.StartGame(); // 게임 시작
     }
 
     public void RollAll()
@@ -80,6 +84,21 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void OnTurnStarted(TurnOwner owner)
+    {
+        ResetTurn();
+
+        if (owner == TurnOwner.Player)
+        {
+            Debug.Log("[GameManager] Player Turn Start");
+            // Player는 버튼으로 Roll
+        }
+        else
+        {
+            Debug.Log("[GameManager] AI Turn Start");
+            StartCoroutine(StartAITurn());
+        }
+    }
     public void DiceStop(int index, int value)
     {
         diceValues[index] = value;
@@ -143,7 +162,7 @@ public class GameManager : MonoBehaviour
     private void CloseScoreBoard()
     {
         scoreBoard.Close();
-        ResetTurn();
+        turnManager.EndTurn();
     }
     private void ResetTurn()
     {
@@ -153,6 +172,11 @@ public class GameManager : MonoBehaviour
         {
             holdStates[i] = false;
         }
+    }
+    private IEnumerator StartAITurn()
+    {
+        yield return new WaitForSeconds(0.5f);
+        diceAutoAI.PlayAITurn();
     }
     public int[] GetCurrentDiceValues()
     {
