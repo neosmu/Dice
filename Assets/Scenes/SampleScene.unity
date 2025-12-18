@@ -4069,7 +4069,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameManager: {fileID: 362635441}
-  scoreBoard: {fileID: 0}
+  scoreBoard: {fileID: 1795807356}
 --- !u!4 &679314592
 Transform:
   m_ObjectHideFlags: 0

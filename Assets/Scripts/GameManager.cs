@@ -28,6 +28,9 @@ public class GameManager : MonoBehaviour
 
     private int rollCount = 0;
     private const int maxRoll = 3;
+    private ScoreData playerScoreData;
+    private ScoreData aiScoreData;
+    private ScoreData currentScoreData;
 
     private void Start()
     {
@@ -39,7 +42,8 @@ public class GameManager : MonoBehaviour
 
         holdPanel.SetActive(false);
         scoreBoard.gameObject.SetActive(false);
-
+        playerScoreData = new ScoreData();
+        aiScoreData = new ScoreData();
         turnManager.StartGame(); // 게임 시작
     }
 
@@ -90,14 +94,14 @@ public class GameManager : MonoBehaviour
 
         if (owner == TurnOwner.Player)
         {
-            Debug.Log("[GameManager] Player Turn Start");
-            // Player는 버튼으로 Roll
+            currentScoreData = playerScoreData;
         }
         else
         {
-            Debug.Log("[GameManager] AI Turn Start");
+            currentScoreData = aiScoreData;
             StartCoroutine(StartAITurn());
         }
+        scoreBoard.SetScoreData(currentScoreData);
     }
     public void DiceStop(int index, int value)
     {

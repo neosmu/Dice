@@ -174,7 +174,7 @@ public class DiceAutoAI : MonoBehaviour
     {
         foreach (var slot in scoreBoard.slots)
         {
-            if (slot.scoreType == type && slot.IsLocked() == false)
+            if (slot.scoreType == type && scoreBoard.IsLocked(type) == false)
             {
                 slot.toggle.isOn = true;
                 break;
@@ -183,11 +183,6 @@ public class DiceAutoAI : MonoBehaviour
     }
     private bool IsScoreLocked(DiceScore type)
     {
-        foreach (var slot in scoreBoard.slots)
-        {
-            if (slot.scoreType == type)
-                return slot.IsLocked();
-        }
-        return true;
+        return scoreBoard.IsLocked(type);
     }
 }
