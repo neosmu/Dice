@@ -110,7 +110,15 @@ public class GameManager : MonoBehaviour
 
         if (stoppedDiceCount == 5)
         {
-            OpenHoldPanel();
+            if (turnManager.CurrentTurn == TurnOwner.Player)
+            {
+                OpenHoldPanel();
+            }
+            else
+            {
+                CollectAll();
+                OpenScoreBoardForAI();
+            }
         }
     }
 
@@ -196,6 +204,11 @@ public class GameManager : MonoBehaviour
     public bool IsAllDiceStopped()
     {
         return stoppedDiceCount == 5;
+    }
+    private void OpenScoreBoardForAI()
+    {
+        scoreBoard.gameObject.SetActive(true);
+        scoreBoard.UpdateScoreBoard(diceValues);
     }
 
     // 특정 숫자 주사위 Hold
