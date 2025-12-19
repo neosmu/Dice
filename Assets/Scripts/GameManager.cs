@@ -108,16 +108,23 @@ public class GameManager : MonoBehaviour
         diceValues[index] = value;
         stoppedDiceCount++;
 
-        if (stoppedDiceCount == 5)
+        if (stoppedDiceCount != 5)
+            return;
+
+        if (turnManager.CurrentTurn == TurnOwner.Player)
         {
-            if (turnManager.CurrentTurn == TurnOwner.Player)
+            if (rollCount >= maxRoll)
             {
-                OpenHoldPanel();
+                OpenScoreBoardDirect();
             }
             else
             {
-                CollectAll();
+                OpenHoldPanel();
             }
+        }
+        else
+        {
+            CollectAll();
         }
     }
 
@@ -169,7 +176,15 @@ public class GameManager : MonoBehaviour
         scoreBoard.gameObject.SetActive(true);
         scoreBoard.UpdateScoreBoard(diceValues);
     }
+    private void OpenScoreBoardDirect()
+    {
+        holdPanel.SetActive(false);
 
+        CollectAll();
+
+        scoreBoard.gameObject.SetActive(true);
+        scoreBoard.UpdateScoreBoard(diceValues);
+    }
     private void CloseScoreBoard()
     {
         scoreBoard.Close();
