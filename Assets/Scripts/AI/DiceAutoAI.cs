@@ -52,8 +52,7 @@ public class DiceAutoAI : MonoBehaviour
         Debug.Log($"[AI] 선택 점수: {bestScore}");
 
         // 점수판 갱신 후 자동 선택
-        scoreBoard.UpdateScoreBoard(finalDice);
-        AutoSelectScore(bestScore);
+        FinishAITurn(bestScore);
     }
 
     private Dictionary<int, int> CountDice(int[] dice)
@@ -184,5 +183,16 @@ public class DiceAutoAI : MonoBehaviour
     private bool IsScoreLocked(DiceScore type)
     {
         return scoreBoard.IsLocked(type);
+    }
+    private void FinishAITurn(DiceScore selectedScore)
+    {
+        int[] finalDice = gameManager.GetCurrentDiceValues();
+
+        // 점수판 표시
+        scoreBoard.gameObject.SetActive(true);
+        scoreBoard.UpdateScoreBoard(finalDice);
+
+        // 점수 자동 선택
+        AutoSelectScore(selectedScore);
     }
 }
