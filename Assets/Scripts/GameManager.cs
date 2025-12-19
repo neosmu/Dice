@@ -49,11 +49,8 @@ public class GameManager : MonoBehaviour
 
     public void RollAll()
     {
-        if (rollCount >= maxRoll)
-        {
-            Debug.Log("더 이상 굴릴 수 없습니다.");
+        if (rollCount >= maxRoll || (rollCount > 0 && stoppedDiceCount < 5))
             return;
-        }
 
         rollCount++;
 
@@ -230,5 +227,21 @@ public class GameManager : MonoBehaviour
                 holdStates[i] = true;
             }
         }
+    }
+    public bool CanRoll()
+    {
+        // AI 턴이면 Roll 불가
+        if (turnManager.CurrentTurn != TurnOwner.Player)
+            return false;
+
+        // 주사위가 아직 굴러가는 중이면 Roll 불가
+        if (stoppedDiceCount < 5 && rollCount > 0)
+            return false;
+
+        // Roll 횟수 초과
+        if (rollCount >= maxRoll)
+            return false;
+
+        return true;
     }
 }
