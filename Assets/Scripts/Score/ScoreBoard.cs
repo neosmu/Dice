@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ScoreBoard : MonoBehaviour
 {
+    [SerializeField] private RawImage[] diceResultImages;
+    [SerializeField] private Texture[] diceFaceTextures;
     public List<ScoreSlot> slots;
 
     private bool hasSelected = false;
@@ -19,6 +22,13 @@ public class ScoreBoard : MonoBehaviour
         hasSelected = false;
         var possible = ScoreCombo.GetPossibleScores(dice);
 
+        for (int i = 0; i < diceResultImages.Length && i < dice.Length; i++)
+        {
+            int value = dice[i] - 1;
+            diceResultImages[i].texture = diceFaceTextures[value];
+            diceResultImages[i].gameObject.SetActive(true);
+        }
+
         foreach (var slot in slots)
         {
             slot.toggle.onValueChanged.RemoveAllListeners();
@@ -33,6 +43,7 @@ public class ScoreBoard : MonoBehaviour
             {
                 int score = ScoreCombo.CalculateScore(slot.scoreType, dice);
                 slot.SetScore(score);
+                slot.toggle.interactable = true;
                 slot.toggle.onValueChanged.AddListener(
                     (isOn) => OnSelect(slot, isOn)
                 );
