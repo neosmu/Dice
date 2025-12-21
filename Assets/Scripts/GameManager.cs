@@ -134,8 +134,6 @@ public class GameManager : MonoBehaviour
             diceUISlots[i].SetFace(diceValues[i]);
             diceUISlots[i].SetHold(holdStates[i]);
         }
-
-        ScoreCombo.Print(diceValues);
         CollectAll();
     }
 
