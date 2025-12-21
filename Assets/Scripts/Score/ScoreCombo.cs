@@ -3,21 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ScoreCombo : MonoBehaviour
+public class ScoreCombo
 {
-    public static void Print(int[] dice)
-    {
-        var scores = GetPossibleScores(dice);
-
-        Debug.Log("Dice: " + string.Join(", ", dice));
-
-        foreach (var s in scores)
-        {
-            int score = CalculateScore(s, dice);
-            Debug.Log($"가능: {s} (점수: {score})");
-        }
-    }
-
     public static List<DiceScore> GetPossibleScores(int[] dice)
     {
         List<DiceScore> results = new List<DiceScore>();
@@ -89,7 +76,7 @@ public class ScoreCombo : MonoBehaviour
         return sum;
     }
 
-    private static Dictionary<int, int> CountDice(int[] dice)
+    public static Dictionary<int, int> CountDice(int[] dice)
     {
         Dictionary<int, int> dict = new Dictionary<int, int>();
 

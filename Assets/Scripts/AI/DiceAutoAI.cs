@@ -55,20 +55,6 @@ public class DiceAutoAI : MonoBehaviour
         FinishAITurn(bestScore);
     }
 
-    private Dictionary<int, int> CountDice(int[] dice)
-    {
-        Dictionary<int, int> dict = new Dictionary<int, int>();
-
-        foreach (int d in dice)
-        {
-            if (!dict.ContainsKey(d))
-                dict.Add(d, 1);
-            else
-                dict[d]++;
-        }
-        return dict;
-    }
-
     // Hold 판단 
     private void DecideHold(int[] dice)
     {
@@ -118,7 +104,7 @@ public class DiceAutoAI : MonoBehaviour
             }
             return;
         }
-        Dictionary<int, int> counts = CountDice(dice);
+        Dictionary<int, int> counts = ScoreCombo.CountDice(dice);
         foreach (var pair in counts)
         {
             if (pair.Value >= 2)
