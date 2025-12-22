@@ -56,6 +56,8 @@ public class GameManager : MonoBehaviour
 
         holdPanel.SetActive(false);
         stoppedDiceCount = 0;
+        int rollingCount = GetRollingDiceCount();
+        AudioManager.Instance.PlayDiceRoll(rollingCount);
 
         SpawnAndRoll();
     }
@@ -258,5 +260,15 @@ public class GameManager : MonoBehaviour
         int aiTotal = aiScoreData.GetTotalScore();
 
         resultPannel.Show(playerTotal, aiTotal);
+    }
+    private int GetRollingDiceCount()
+    {
+        int count = 0;
+        for (int i = 0; i < holdStates.Length; i++)
+        {
+            if (!holdStates[i])
+                count++;
+        }
+        return count;
     }
 }
