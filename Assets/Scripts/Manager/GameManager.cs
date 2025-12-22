@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TurnManager turnManager;
     [SerializeField] private DiceAutoAI diceAutoAI;
     [SerializeField] private ResultPannel resultPannel;
+    [SerializeField] private Transform[] holdSlotPoints;
     private int stoppedDiceCount = 0;
 
     private bool[] holdStates = new bool[5];
@@ -136,14 +137,24 @@ public class GameManager : MonoBehaviour
             diceUISlots[i].SetFace(diceValues[i]);
             diceUISlots[i].SetHold(holdStates[i]);
         }
-        CollectAll();
     }
 
     private void CollectAll()
     {
+        int slotIndex = 0; // 빈 슬롯 순서용
+
         for (int i = 0; i < 5; i++)
         {
-            if (dices[i] != null)
+            if (dices[i] == null)
+                continue;
+
+            if (holdStates[i])
+            {
+                // 다음 빈 슬롯으로 이동
+                dices[i].HoldTo(holdSlotPoints[slotIndex].position);
+                slotIndex++;
+            }
+            else
             {
                 diceSpawner.Collect(dices[i]);
                 dices[i] = null;
@@ -163,6 +174,7 @@ public class GameManager : MonoBehaviour
     {
         ApplyHoldSelectionFromUI();
         holdPanel.SetActive(false);
+        CollectAll();
     }
 
     private void OpenScoreBoard()

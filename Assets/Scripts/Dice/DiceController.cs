@@ -13,6 +13,7 @@ public class DiceController : MonoBehaviour
     public int diceIndex; // 몇 번째 주사위인지 구분용 인덱스
 
     private bool isRolling = false; // 현재 굴러가는 중인지 여부
+    private bool hold = false;
     private float rollStartTime;
     private float blockDuration = 0.25f;
 
@@ -62,5 +63,26 @@ public class DiceController : MonoBehaviour
             }
         }
         return result;
+    }
+    public void HoldTo(Vector3 worldPos)
+    {
+        hold = true;
+
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
+
+        transform.position = worldPos;
+    }
+
+    public void Release()
+    {
+        hold = false;
+        rb.isKinematic = false;
+    }
+
+    public bool IsHeld()
+    {
+        return hold;
     }
 }
