@@ -22,4 +22,18 @@ public class ScoreData
         locked.Add(type);
         scores[type] = score;
     }
+    public int GetTotalScore()
+    {
+        int total = 0;
+        foreach (int value in scores.Values)
+        {
+            total += value;
+        }
+        return total;
+    }
+
+    public bool IsAllLocked()
+    {
+        return locked.Count >= System.Enum.GetValues(typeof(DiceScore)).Length;
+    }
 }

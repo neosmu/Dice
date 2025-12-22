@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private TurnManager turnManager;
     [SerializeField] private DiceAutoAI diceAutoAI;
-
+    [SerializeField] private ResultPannel resultPannel;
     private int stoppedDiceCount = 0;
 
     private bool[] holdStates = new bool[5];
@@ -183,6 +183,12 @@ public class GameManager : MonoBehaviour
     private void CloseScoreBoard()
     {
         scoreBoard.Close();
+
+        if (IsGameFinished())
+        {
+            ShowResultPanel();
+            return;
+        }
         turnManager.EndTurn();
     }
     private void ResetTurn()
@@ -241,5 +247,16 @@ public class GameManager : MonoBehaviour
             return false;
 
         return true;
+    }
+    private bool IsGameFinished()
+    {
+        return playerScoreData.IsAllLocked() && aiScoreData.IsAllLocked();
+    }
+    private void ShowResultPanel()
+    {
+        int playerTotal = playerScoreData.GetTotalScore();
+        int aiTotal = aiScoreData.GetTotalScore();
+
+        resultPannel.Show(playerTotal, aiTotal);
     }
 }
