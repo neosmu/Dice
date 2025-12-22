@@ -198,11 +198,25 @@ public class GameManager : MonoBehaviour
     {
         scoreBoard.Close();
 
+        // 모든 주사위 무조건 회수
+        for (int i = 0; i < dices.Length; i++)
+        {
+            if (dices[i] != null)
+            {
+                diceSpawner.Collect(dices[i]);
+                dices[i] = null;
+            }
+            holdStates[i] = false;
+        }
+
+        ResetTurn();
+
         if (IsGameFinished())
         {
             ShowResultPanel();
             return;
         }
+
         turnManager.EndTurn();
     }
     private void ResetTurn()
