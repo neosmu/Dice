@@ -113,6 +113,21 @@ public class DiceAutoAI : MonoBehaviour
             }
         }
     }
+    private bool IsLowValueHighCombo(DiceScore type, int score)
+    {
+        switch (type)
+        {
+            case DiceScore.FourOfKind:
+                return score < 12;
+
+            case DiceScore.FullHouse:
+                return score < 10;
+
+            case DiceScore.Choice:
+                return score < 14;
+        }
+        return false;
+    }
 
     // 가중치 기반 점수 판단
     private DiceScore BestScore(int[] dice)
@@ -132,17 +147,23 @@ public class DiceAutoAI : MonoBehaviour
                 continue;
 
             int weight = 0;
-            if (scoreWeights.ContainsKey(type))
-                weight = scoreWeights[type];
 
+            if (scoreWeights.ContainsKey(type))
+            {
+                weight = scoreWeights[type];
+            }
             int finalValue = score + weight;
 
             if (type == DiceScore.FourOfKind || type == DiceScore.FullHouse || type == DiceScore.Choice)
             {
-                float ratio = (float)score / 20f; 
-                ratio = Mathf.Clamp01(ratio);
-
+                float ratio = Mathf.Clamp01(score / 20f);
                 finalValue = (int)(weight * ratio) + score;
+
+                // ⭐ 저점 방어 패널티
+                if (IsLowValueHighCombo(type, score))
+                {
+                    finalValue -= 20;
+                }
             }
 
             if (finalValue > bestValue)
@@ -159,13 +180,14 @@ public class DiceAutoAI : MonoBehaviour
     {
         foreach (var slot in scoreBoard.slots)
         {
-            if (slot.scoreType == type && scoreBoard.IsLocked(type) == false)
+            if (slot.scoreType == type && !scoreBoard.IsLocked(type))
             {
                 slot.toggle.isOn = true;
                 break;
             }
         }
     }
+
     private bool IsScoreLocked(DiceScore type)
     {
         return scoreBoard.IsLocked(type);
