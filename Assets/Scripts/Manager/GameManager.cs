@@ -141,20 +141,10 @@ public class GameManager : MonoBehaviour
 
     private void CollectAll()
     {
-        int slotIndex = 0; // 빈 슬롯 순서용
 
         for (int i = 0; i < 5; i++)
         {
-            if (dices[i] == null)
-                continue;
-
-            if (holdStates[i])
-            {
-                // 다음 빈 슬롯으로 이동
-                dices[i].HoldTo(holdSlotPoints[slotIndex].position);
-                slotIndex++;
-            }
-            else
+            if (dices[i] != null)
             {
                 diceSpawner.Collect(dices[i]);
                 dices[i] = null;
