@@ -39,20 +39,20 @@ public class ScoreBoard : MonoBehaviour
                 continue;
             }
 
+            int score = 0;
+
+            // 조합이 성립하면 점수 계산
             if (possible.Contains(slot.scoreType))
             {
-                int score = ScoreCombo.CalculateScore(slot.scoreType, dice);
-                slot.SetScore(score);
-                slot.toggle.interactable = true;
-                slot.toggle.onValueChanged.AddListener(
-                    (isOn) => OnSelect(slot, isOn)
-                );
+                score = ScoreCombo.CalculateScore(slot.scoreType, dice);
             }
-            else
-            {
-                slot.SetScore(0);
-                slot.toggle.interactable = false;
-            }
+
+            // 조합 여부 상관없이 점수 세팅
+            slot.SetScore(score);
+
+            // 아직 Lock 안 된 슬롯은 전부 선택 가능
+            slot.toggle.interactable = true;
+            slot.toggle.onValueChanged.AddListener((isOn) => OnSelect(slot, isOn));
         }
     }
 
