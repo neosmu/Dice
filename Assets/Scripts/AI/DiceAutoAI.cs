@@ -134,8 +134,9 @@ public class DiceAutoAI : MonoBehaviour
     {
         List<DiceScore> possible = ScoreCombo.GetPossibleScores(dice);
 
-        DiceScore best = possible[0];
+        DiceScore best = DiceScore.Aces;
         int bestValue = int.MinValue;
+        bool found = false;
 
         foreach (DiceScore type in possible)
         {
@@ -143,15 +144,11 @@ public class DiceAutoAI : MonoBehaviour
                 continue;
 
             int score = ScoreCombo.CalculateScore(type, dice);
-            if (score <= 0)
-                continue;
 
             int weight = 0;
-
             if (scoreWeights.ContainsKey(type))
-            {
                 weight = scoreWeights[type];
-            }
+
             int finalValue = score + weight;
 
             if (type == DiceScore.FourOfKind || type == DiceScore.FullHouse || type == DiceScore.Choice)
@@ -159,20 +156,36 @@ public class DiceAutoAI : MonoBehaviour
                 float ratio = Mathf.Clamp01(score / 20f);
                 finalValue = (int)(weight * ratio) + score;
 
-                // ⭐ 저점 방어 패널티
                 if (IsLowValueHighCombo(type, score))
-                {
                     finalValue -= 20;
-                }
             }
 
             if (finalValue > bestValue)
             {
                 bestValue = finalValue;
                 best = type;
+                found = true;
             }
         }
+
+        if (!found)
+        {
+            return GetFirstEmptyScore();
+        }
+
         return best;
+    }
+
+    private DiceScore GetFirstEmptyScore()
+    {
+        foreach (var slot in scoreBoard.slots)
+        {
+            if (!scoreBoard.IsLocked(slot.scoreType))
+            {
+                return slot.scoreType;
+            }
+        }
+        return DiceScore.Aces;
     }
 
     // 점수 자동 선택
