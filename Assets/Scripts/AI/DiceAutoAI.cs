@@ -43,6 +43,13 @@ public class DiceAutoAI : MonoBehaviour
 
             int[] dice = gameManager.GetCurrentDiceValues();
             DecideHold(dice);
+            if (roll < MAX_ROLL - 1)
+            {
+                if (HasRerollExpectation(dice))
+                {
+                    continue;
+                }
+            }
         }
 
         // Roll 종료 후 점수 선택
@@ -215,5 +222,40 @@ public class DiceAutoAI : MonoBehaviour
 
         // 점수 자동 선택
         AutoSelectScore(selectedScore);
+    }
+    private bool HasRerollExpectation(int[] dice)
+    {
+        Dictionary<int, int> counts = ScoreCombo.CountDice(dice);
+
+        // 같은 숫자 4개 이상
+        foreach (var pair in counts)
+        {
+            if (pair.Value >= 4)
+                return true;
+
+            if (pair.Value == 3)
+                return true;
+        }
+
+        // 스트레이트 가능성 체크
+        List<int> uniq = new List<int>(counts.Keys);
+        uniq.Sort();
+
+        int seq = 1;
+        for (int i = 1; i < uniq.Count; i++)
+        {
+            if (uniq[i] == uniq[i - 1] + 1)
+            {
+                seq++;
+                if (seq >= 3)
+                    return true;
+            }
+            else
+            {
+                seq = 1;
+            }
+        }
+
+        return false;
     }
 }
