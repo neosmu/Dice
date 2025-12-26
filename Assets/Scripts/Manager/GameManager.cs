@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private DiceController[] dices = new DiceController[5];
 
     [SerializeField] private GameObject holdPanel;
+    [SerializeField] private TextMeshProUGUI availableScoreText;
     [SerializeField] private DiceSlot[] diceUISlots;
     [SerializeField] private Button closeButton;
     [SerializeField] private Button okButton;
@@ -137,6 +139,7 @@ public class GameManager : MonoBehaviour
             diceUISlots[i].SetFace(diceValues[i]);
             diceUISlots[i].SetHold(holdStates[i]);
         }
+        UpdateAvailableScoresUI();
     }
 
     private void CollectAll()
@@ -216,6 +219,33 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < 5; i++)
         {
             holdStates[i] = false;
+        }
+    }
+    private void UpdateAvailableScoresUI()
+    {
+        if (currentScoreData == null)
+            return;
+
+        List<string> lines = new List<string>();
+
+        foreach (DiceScore type in System.Enum.GetValues(typeof(DiceScore)))
+        {
+            // 이미 잠긴 점수는 제외
+            if (currentScoreData.IsLocked(type))
+                continue;
+
+            int score = ScoreCombo.CalculateScore(type, diceValues);
+            lines.Add($"{type} ({score})");
+        }
+
+        if (lines.Count == 0)
+        {
+            availableScoreText.text = "등록 가능한 점수 없음";
+        }
+        else
+        {
+            availableScoreText.text =
+                "등록 가능한 점수\n" + string.Join("\n", lines);
         }
     }
     private IEnumerator StartAITurn()
