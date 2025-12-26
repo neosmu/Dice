@@ -35,6 +35,15 @@ public class GameManager : MonoBehaviour
     private ScoreData aiScoreData;
     private ScoreData currentScoreData;
 
+    private readonly DiceScore[] comboScores =
+{
+    DiceScore.Choice,
+    DiceScore.FourOfKind,
+    DiceScore.FullHouse,
+    DiceScore.SmallStraight,
+    DiceScore.LargeStraight,
+    DiceScore.Yacht
+};
     private void Start()
     {
         closeButton.onClick.AddListener(CloseHoldPanel);
@@ -228,14 +237,36 @@ public class GameManager : MonoBehaviour
 
         List<string> lines = new List<string>();
 
+        int lockedCount = 0;
         foreach (DiceScore type in System.Enum.GetValues(typeof(DiceScore)))
         {
-            // 이미 잠긴 점수는 제외
             if (currentScoreData.IsLocked(type))
-                continue;
+                lockedCount++;
+        }
 
-            int score = ScoreCombo.CalculateScore(type, diceValues);
-            lines.Add($"{type} ({score})");
+        bool showAll = lockedCount >= 6;
+
+        if (!showAll)
+        {
+            foreach (DiceScore type in comboScores)
+            {
+                if (currentScoreData.IsLocked(type))
+                    continue;
+
+                int score = ScoreCombo.CalculateScore(type, diceValues);
+                lines.Add($"{type}");
+            }
+        }
+        else
+        {
+            foreach (DiceScore type in System.Enum.GetValues(typeof(DiceScore)))
+            {
+                if (currentScoreData.IsLocked(type))
+                    continue;
+
+                int score = ScoreCombo.CalculateScore(type, diceValues);
+                lines.Add($"{type}");
+            }
         }
 
         if (lines.Count == 0)
@@ -244,8 +275,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            availableScoreText.text =
-                "등록 가능한 점수\n" + string.Join("\n", lines);
+            availableScoreText.text = "등록 가능한 점수\n" + string.Join("\n", lines);
         }
     }
     private IEnumerator StartAITurn()
