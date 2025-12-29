@@ -17,11 +17,11 @@ public class ResultPannel : MonoBehaviour
         aiScoreText.text = aiScore.ToString();
 
         if (playerScore > aiScore)
-            resultText.text = "Player Win";
+            resultText.text = "플레이어가 승리하였습니다.";
         else if (playerScore < aiScore)
-            resultText.text = "AI Win";
+            resultText.text = "AI가 승리하였습니다.";
         else
-            resultText.text = "Draw";
+            resultText.text = "동점입니다.";
     }
 
     public void Close()
