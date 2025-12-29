@@ -52,6 +52,7 @@ public class GameManager : MonoBehaviour
         scoreBoardCloseButton.onClick.AddListener(CloseScoreBoard);
 
         turnManager.OnTurnStarted += OnTurnStarted;
+        diceShaker.OnPour += SpawnDiceFromPourPoint;
 
         holdPanel.SetActive(false);
         scoreBoard.gameObject.SetActive(false);
@@ -72,35 +73,33 @@ public class GameManager : MonoBehaviour
         int rollingCount = GetRollingDiceCount();
         AudioManager.Instance.PlayDiceRoll(rollingCount);
 
-        SpawnAndRoll();
-
         diceShaker.PlayShakeAndPour();
     }
 
-    private void SpawnAndRoll()
-    {
-        for (int i = 0; i < 5; i++)
-        {
-            if (holdStates[i])
-            {
-                dices[i] = null;
-                DiceStop(i, diceValues[i]);
-                continue;
-            }
+    //private void SpawnAndRoll()
+    //{
+    //    for (int i = 0; i < 5; i++)
+    //    {
+    //        if (holdStates[i])
+    //        {
+    //            dices[i] = null;
+    //            DiceStop(i, diceValues[i]);
+    //            continue;
+    //        }
 
-            DiceController dice = diceSpawner.SpawnDice(i);
-            dice.gameManager = this;
-            dice.diceIndex = i;
+    //        DiceController dice = diceSpawner.SpawnDice(i);
+    //        dice.gameManager = this;
+    //        dice.diceIndex = i;
 
-            dices[i] = dice;
+    //        dices[i] = dice;
 
-            DiceModel model = dice.GetComponent<DiceModel>();
-            model.SetHold(false);
+    //        DiceModel model = dice.GetComponent<DiceModel>();
+    //        model.SetHold(false);
 
-            dice.Roll();
-            model.AddRollCount();
-        }
-    }
+    //        dice.Roll();
+    //        model.AddRollCount();
+    //    }
+    //}
 
     private void OnTurnStarted(TurnOwner owner)
     {
@@ -349,5 +348,36 @@ public class GameManager : MonoBehaviour
                 count++;
         }
         return count;
+    }
+    private void SpawnDiceFromPourPoint()
+    {
+        Vector3 spawnPos = diceShaker.GetPourPosition();
+
+        for (int i = 0; i < 5; i++)
+        {
+            // Hold 된 주사위 처리
+            if (holdStates[i])
+            {
+                dices[i] = null;
+                DiceStop(i, diceValues[i]);
+                continue;
+            }
+
+            DiceController dice = diceSpawner.SpawnDice(i);
+
+            dice.transform.position = spawnPos;
+            dice.transform.rotation = Random.rotation;
+
+            dice.gameManager = this;
+            dice.diceIndex = i;
+
+            dices[i] = dice;
+
+            DiceModel model = dice.GetComponent<DiceModel>();
+            model.SetHold(false);
+
+            dice.Roll();
+            model.AddRollCount();
+        }
     }
 }
