@@ -24,7 +24,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TurnManager turnManager;
     [SerializeField] private DiceAutoAI diceAutoAI;
     [SerializeField] private ResultPannel resultPannel;
-    [SerializeField] private Transform[] holdSlotPoints;
     private int stoppedDiceCount = 0;
 
     private bool[] holdStates = new bool[5];
@@ -72,34 +71,8 @@ public class GameManager : MonoBehaviour
         stoppedDiceCount = 0;
         int rollingCount = GetRollingDiceCount();
         AudioManager.Instance.PlayDiceRoll(rollingCount);
-
         diceShaker.PlayShakeAndPour();
     }
-
-    //private void SpawnAndRoll()
-    //{
-    //    for (int i = 0; i < 5; i++)
-    //    {
-    //        if (holdStates[i])
-    //        {
-    //            dices[i] = null;
-    //            DiceStop(i, diceValues[i]);
-    //            continue;
-    //        }
-
-    //        DiceController dice = diceSpawner.SpawnDice(i);
-    //        dice.gameManager = this;
-    //        dice.diceIndex = i;
-
-    //        dices[i] = dice;
-
-    //        DiceModel model = dice.GetComponent<DiceModel>();
-    //        model.SetHold(false);
-
-    //        dice.Roll();
-    //        model.AddRollCount();
-    //    }
-    //}
 
     private void OnTurnStarted(TurnOwner owner)
     {
