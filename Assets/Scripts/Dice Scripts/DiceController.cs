@@ -42,8 +42,8 @@ public class DiceController : MonoBehaviour
 
         transform.position += Vector3.up * 0.3f;
 
-        rb.AddForce(new Vector3(Random.Range(-2f, 2f), Random.Range(4f, 7f), Random.Range(-2f, 2f)), ForceMode.Impulse);
-        rb.AddTorque(Random.insideUnitSphere * 10f, ForceMode.Impulse);
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
     }
 
     // 가장 위를 향하고 있는 면을 찾아 해당 FaceId 값을 반환

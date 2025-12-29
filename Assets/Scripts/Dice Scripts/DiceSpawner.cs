@@ -5,12 +5,13 @@ using UnityEngine;
 public class DiceSpawner : MonoBehaviour
 {
     [SerializeField] private DicePool dicePool;
-    [SerializeField] private Transform[] spawnPoints;
+    [SerializeField] private Transform diceCupIn;
 
     public DiceController SpawnDice(int index)
     {
         DiceController dice = dicePool.Get();
-        dice.transform.position = spawnPoints[index].position;
+        dice.transform.position = diceCupIn.position;
+        dice.transform.rotation = Random.rotation;
         return dice;
     }
 

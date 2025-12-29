@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private DiceSpawner diceSpawner;
+    [SerializeField] private DiceShaker diceShaker;
     [SerializeField] private DiceController[] dices = new DiceController[5];
 
     [SerializeField] private GameObject holdPanel;
@@ -72,6 +73,8 @@ public class GameManager : MonoBehaviour
         AudioManager.Instance.PlayDiceRoll(rollingCount);
 
         SpawnAndRoll();
+
+        diceShaker.PlayShakeAndPour();
     }
 
     private void SpawnAndRoll()
