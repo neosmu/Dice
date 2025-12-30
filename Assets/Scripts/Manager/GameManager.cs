@@ -12,7 +12,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private DiceController[] dices = new DiceController[5];
 
     [SerializeField] private GameObject holdPanel;
-    [SerializeField] private TextMeshProUGUI availableScoreText;
     [SerializeField] private DiceSlot[] diceUISlots;
     [SerializeField] private Button closeButton;
     [SerializeField] private Button okButton;
@@ -36,14 +35,14 @@ public class GameManager : MonoBehaviour
     private ScoreData currentScoreData;
 
     private readonly DiceScore[] comboScores =
-{
-    DiceScore.Choice,
-    DiceScore.FourOfKind,
-    DiceScore.FullHouse,
-    DiceScore.SmallStraight,
-    DiceScore.LargeStraight,
-    DiceScore.Yacht
-};
+    {
+        DiceScore.Choice,
+        DiceScore.FourOfKind,
+        DiceScore.FullHouse,
+        DiceScore.SmallStraight,
+        DiceScore.LargeStraight,
+        DiceScore.Yacht
+    };
     private void Start()
     {
         closeButton.onClick.AddListener(CloseHoldPanel);
@@ -125,7 +124,6 @@ public class GameManager : MonoBehaviour
             diceUISlots[i].SetFace(diceValues[i]);
             diceUISlots[i].SetHold(holdStates[i]);
         }
-        UpdateAvailableScoresUI();
     }
 
     private void CollectAll()
@@ -222,54 +220,7 @@ public class GameManager : MonoBehaviour
             holdStates[i] = false;
         }
     }
-    private void UpdateAvailableScoresUI()
-    {
-        if (currentScoreData == null)
-            return;
-
-        List<string> lines = new List<string>();
-
-        int lockedCount = 0;
-        foreach (DiceScore type in System.Enum.GetValues(typeof(DiceScore)))
-        {
-            if (currentScoreData.IsLocked(type))
-                lockedCount++;
-        }
-
-        bool showAll = lockedCount >= 6;
-
-        if (!showAll)
-        {
-            foreach (DiceScore type in comboScores)
-            {
-                if (currentScoreData.IsLocked(type))
-                    continue;
-
-                int score = ScoreCombo.CalculateScore(type, diceValues);
-                lines.Add($"{type}");
-            }
-        }
-        else
-        {
-            foreach (DiceScore type in System.Enum.GetValues(typeof(DiceScore)))
-            {
-                if (currentScoreData.IsLocked(type))
-                    continue;
-
-                int score = ScoreCombo.CalculateScore(type, diceValues);
-                lines.Add($"{type}");
-            }
-        }
-
-        if (lines.Count == 0)
-        {
-            availableScoreText.text = "등록 가능한 점수 없음";
-        }
-        else
-        {
-            availableScoreText.text = "등록 가능한 점수\n" + string.Join("\n", lines);
-        }
-    }
+ 
     private IEnumerator StartAITurn()
     {
         yield return new WaitForSeconds(0.5f);
