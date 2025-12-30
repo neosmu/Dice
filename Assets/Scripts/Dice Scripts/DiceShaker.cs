@@ -16,7 +16,7 @@ public class DiceShaker : MonoBehaviour
     [SerializeField] private float tiltAngle;
     [SerializeField] private float pourDuration;
 
-    public Action OnPour; // ← 쏟는 타이밍 콜백
+    public Action OnPour;
 
     private Vector3 originPos;
     private Quaternion originRot;

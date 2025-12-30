@@ -324,7 +324,9 @@ public class GameManager : MonoBehaviour
     }
     private void SpawnDiceFromPourPoint()
     {
-        Vector3 spawnPos = diceShaker.GetPourPosition();
+        Vector3 basePos = diceShaker.GetPourPosition();
+
+        int rollingCount = GetRollingDiceCount();
 
         for (int i = 0; i < 5; i++)
         {
@@ -338,19 +340,28 @@ public class GameManager : MonoBehaviour
 
             DiceController dice = diceSpawner.SpawnDice(i);
 
-            dice.transform.position = spawnPos;
+            Vector3 offset = new Vector3(Random.Range(-0.15f, 0.15f), Random.Range(0.0f, 0.1f), Random.Range(-0.15f, 0.15f));
+
+            dice.transform.position = basePos + offset;
             dice.transform.rotation = Random.rotation;
 
             dice.gameManager = this;
             dice.diceIndex = i;
-
             dices[i] = dice;
 
-            DiceModel model = dice.GetComponent<DiceModel>();
-            model.SetHold(false);
+            Rigidbody rb = dice.GetComponent<Rigidbody>();
 
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            Vector3 pourDir = diceShaker.transform.forward;
+            float baseForce = 2.5f;
+            float countBonus = Mathf.Lerp(1.8f, 1.0f, rollingCount / 5f);
+
+            Vector3 force = (pourDir + Vector3.up * 0.4f).normalized * baseForce * countBonus;
+
+            rb.AddForce(force, ForceMode.Impulse);
+            rb.AddTorque(Random.onUnitSphere * 2.0f, ForceMode.Impulse);
             dice.Roll();
-            model.AddRollCount();
         }
     }
 }
