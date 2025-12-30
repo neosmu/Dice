@@ -39,6 +39,7 @@ public class DiceAutoAI : MonoBehaviour
             Debug.Log($"[AI] Roll {roll + 1}");
 
             gameManager.RollDice();
+            yield return new WaitForSeconds(0.4f);
             yield return new WaitUntil(() => gameManager.IsAllDiceStopped());
 
             int[] dice = gameManager.GetCurrentDiceValues();
