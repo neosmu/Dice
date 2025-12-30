@@ -66,7 +66,7 @@ public class GameManager : MonoBehaviour
             return;
 
         rollCount++;
-
+ 
         holdPanel.SetActive(false);
         stoppedDiceCount = 0;
         int rollingCount = GetRollingDiceCount();
@@ -81,10 +81,12 @@ public class GameManager : MonoBehaviour
         if (owner == TurnOwner.Player)
         {
             currentScoreData = playerScoreData;
+            AudioManager.Instance.PlayPlayerTurnNarration();
         }
         else
         {
             currentScoreData = aiScoreData;
+            AudioManager.Instance.PlayAITurnNarration();
             StartCoroutine(StartAITurn());
         }
         scoreBoard.SetScoreData(currentScoreData);
@@ -152,12 +154,22 @@ public class GameManager : MonoBehaviour
         ApplyHoldSelectionFromUI();
         holdPanel.SetActive(false);
         CollectAll();
+
+        if (turnManager.CurrentTurn == TurnOwner.Player && rollCount == maxRoll - 1)
+        {
+            AudioManager.Instance.PlayLastRollNarration();
+        }
     }
 
     private void OpenScoreBoard()
     {
         ApplyHoldSelectionFromUI();
         holdPanel.SetActive(false);
+
+        if (turnManager.CurrentTurn == TurnOwner.Player)
+        {
+            AudioManager.Instance.PlayScoreSelectNarration();
+        }
 
         scoreBoard.gameObject.SetActive(true);
         scoreBoard.UpdateScoreBoard(diceValues);
@@ -167,6 +179,11 @@ public class GameManager : MonoBehaviour
         holdPanel.SetActive(false);
 
         CollectAll();
+
+        if (turnManager.CurrentTurn == TurnOwner.Player)
+        {
+            AudioManager.Instance.PlayScoreSelectNarration();
+        }
 
         scoreBoard.gameObject.SetActive(true);
         scoreBoard.UpdateScoreBoard(diceValues);
