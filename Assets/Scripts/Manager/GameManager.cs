@@ -34,15 +34,6 @@ public class GameManager : MonoBehaviour
     private ScoreData aiScoreData;
     private ScoreData currentScoreData;
 
-    private readonly DiceScore[] comboScores =
-    {
-        DiceScore.Choice,
-        DiceScore.FourOfKind,
-        DiceScore.FullHouse,
-        DiceScore.SmallStraight,
-        DiceScore.LargeStraight,
-        DiceScore.Yacht
-    };
     private void Start()
     {
         closeButton.onClick.AddListener(CloseHoldPanel);
@@ -61,16 +52,32 @@ public class GameManager : MonoBehaviour
 
     public void RollAll()
     {
-        if (rollCount >= maxRoll || (rollCount > 0 && stoppedDiceCount < 5))
+        // Roll 횟수 초과 또는 이전 Roll 주사위가 아직 멈추지 않았으면 실행 불가
+        if (!CanStartRoll())
             return;
 
         rollCount++;
- 
+
         holdPanel.SetActive(false);
         stoppedDiceCount = 0;
+
         int rollingCount = GetRollingDiceCount();
         AudioManager.Instance.PlayDiceRoll(rollingCount);
+
         diceShaker.PlayShakeAndPour();
+    }
+
+    private bool CanStartRoll()
+    {
+        // Roll 횟수 초과
+        if (rollCount >= maxRoll)
+            return false;
+
+        // 주사위가 아직 굴러가는 중이면 Roll 불가
+        if (rollCount > 0 && stoppedDiceCount < dices.Length)
+            return false;
+
+        return true;
     }
 
     private void OnTurnStarted(TurnOwner owner)
@@ -88,14 +95,22 @@ public class GameManager : MonoBehaviour
             AudioManager.Instance.PlayAITurnNarration();
             StartCoroutine(StartAITurn());
         }
+
         scoreBoard.SetScoreData(currentScoreData);
     }
+
+    private IEnumerator StartAITurn()
+    {
+        yield return new WaitForSeconds(0.5f);
+        diceAutoAI.PlayAITurn();
+    }
+
     public void DiceStop(int index, int value)
     {
         diceValues[index] = value;
         stoppedDiceCount++;
 
-        if (stoppedDiceCount != 5)
+        if (!IsAllDiceStopped())
             return;
 
         if (turnManager.CurrentTurn == TurnOwner.Player)
@@ -111,8 +126,13 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            CollectAll();
+            CollectAllDice();
         }
+    }
+
+    public bool IsAllDiceStopped()
+    {
+        return stoppedDiceCount == dices.Length;
     }
 
     private void OpenHoldPanel()
@@ -126,16 +146,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void CollectAll()
+    private void CloseHoldPanel()
     {
+        ApplyHoldSelectionFromUI();
+        holdPanel.SetActive(false);
+        CollectAllDice();
 
-        for (int i = 0; i < 5; i++)
+        if (turnManager.CurrentTurn == TurnOwner.Player && rollCount == maxRoll - 1)
         {
-            if (dices[i] != null)
-            {
-                diceSpawner.Collect(dices[i]);
-                dices[i] = null;
-            }
+            AudioManager.Instance.PlayLastRollNarration();
         }
     }
 
@@ -147,36 +166,25 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void CloseHoldPanel()
-    {
-        ApplyHoldSelectionFromUI();
-        holdPanel.SetActive(false);
-        CollectAll();
-
-        if (turnManager.CurrentTurn == TurnOwner.Player && rollCount == maxRoll - 1)
-        {
-            AudioManager.Instance.PlayLastRollNarration();
-        }
-    }
-
     private void OpenScoreBoard()
     {
-        ApplyHoldSelectionFromUI();
-        holdPanel.SetActive(false);
-
-        if (turnManager.CurrentTurn == TurnOwner.Player)
-        {
-            AudioManager.Instance.PlayScoreSelectNarration();
-        }
-
-        scoreBoard.gameObject.SetActive(true);
-        scoreBoard.UpdateScoreBoard(diceValues);
+        OpenScoreBoardInternal(true, false);
     }
+
     private void OpenScoreBoardDirect()
     {
+        OpenScoreBoardInternal(false, true);
+    }
+
+    private void OpenScoreBoardInternal(bool applyHold, bool collectDice)
+    {
+        if (applyHold)
+            ApplyHoldSelectionFromUI();
+
         holdPanel.SetActive(false);
 
-        CollectAll();
+        if (collectDice)
+            CollectAllDice();
 
         if (turnManager.CurrentTurn == TurnOwner.Player)
         {
@@ -186,20 +194,14 @@ public class GameManager : MonoBehaviour
         scoreBoard.gameObject.SetActive(true);
         scoreBoard.UpdateScoreBoard(diceValues);
     }
+
     private void CloseScoreBoard()
     {
         scoreBoard.Close();
 
         // 모든 주사위 무조건 회수
-        for (int i = 0; i < dices.Length; i++)
-        {
-            if (dices[i] != null)
-            {
-                diceSpawner.Collect(dices[i]);
-                dices[i] = null;
-            }
-            holdStates[i] = false;
-        }
+        CollectAllDice();
+        ResetHoldStates();
 
         ResetTurn();
 
@@ -211,21 +213,14 @@ public class GameManager : MonoBehaviour
 
         turnManager.EndTurn();
     }
+
     private void ResetTurn()
     {
         rollCount = 0;
+        stoppedDiceCount = 0;
+        ResetHoldStates();
+    }
 
-        for (int i = 0; i < 5; i++)
-        {
-            holdStates[i] = false;
-        }
-    }
- 
-    private IEnumerator StartAITurn()
-    {
-        yield return new WaitForSeconds(0.5f);
-        diceAutoAI.PlayAITurn();
-    }
     public int[] GetCurrentDiceValues()
     {
         return diceValues;
@@ -235,11 +230,6 @@ public class GameManager : MonoBehaviour
     public void RollDice()
     {
         RollAll();
-    }
-
-    public bool IsAllDiceStopped()
-    {
-        return stoppedDiceCount == 5;
     }
 
     // 특정 숫자 주사위 Hold
@@ -253,6 +243,7 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+
     public bool CanRoll()
     {
         // AI 턴이면 Roll 불가
@@ -260,7 +251,7 @@ public class GameManager : MonoBehaviour
             return false;
 
         // 주사위가 아직 굴러가는 중이면 Roll 불가
-        if (stoppedDiceCount < 5 && rollCount > 0)
+        if (stoppedDiceCount < dices.Length && rollCount > 0)
             return false;
 
         // Roll 횟수 초과
@@ -269,10 +260,12 @@ public class GameManager : MonoBehaviour
 
         return true;
     }
+
     private bool IsGameFinished()
     {
         return playerScoreData.IsAllLocked() && aiScoreData.IsAllLocked();
     }
+
     private void ShowResultPanel()
     {
         int playerTotal = playerScoreData.GetTotalScore();
@@ -280,6 +273,7 @@ public class GameManager : MonoBehaviour
 
         resultPannel.Show(playerTotal, aiTotal);
     }
+
     private int GetRollingDiceCount()
     {
         int count = 0;
@@ -290,10 +284,10 @@ public class GameManager : MonoBehaviour
         }
         return count;
     }
+
     private void SpawnDiceFromPourPoint()
     {
         Vector3 basePos = diceShaker.GetPourPosition();
-
         int rollingCount = GetRollingDiceCount();
 
         for (int i = 0; i < 5; i++)
@@ -301,7 +295,6 @@ public class GameManager : MonoBehaviour
             // Hold 된 주사위 처리
             if (holdStates[i])
             {
-                dices[i] = null;
                 DiceStop(i, diceValues[i]);
                 continue;
             }
@@ -318,9 +311,9 @@ public class GameManager : MonoBehaviour
             dices[i] = dice;
 
             Rigidbody rb = dice.GetComponent<Rigidbody>();
-
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
+
             Vector3 pourDir = diceShaker.transform.forward;
             float baseForce = 2.5f;
             float countBonus = Mathf.Lerp(1.8f, 1.0f, rollingCount / 5f);
@@ -329,7 +322,28 @@ public class GameManager : MonoBehaviour
 
             rb.AddForce(force, ForceMode.Impulse);
             rb.AddTorque(Random.onUnitSphere * 2.0f, ForceMode.Impulse);
+
             dice.Roll();
+        }
+    }
+
+    private void CollectAllDice()
+    {
+        for (int i = 0; i < dices.Length; i++)
+        {
+            if (dices[i] != null)
+            {
+                diceSpawner.Collect(dices[i]);
+                dices[i] = null;
+            }
+        }
+    }
+
+    private void ResetHoldStates()
+    {
+        for (int i = 0; i < holdStates.Length; i++)
+        {
+            holdStates[i] = false;
         }
     }
 }
